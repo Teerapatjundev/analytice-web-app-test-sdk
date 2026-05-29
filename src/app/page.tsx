@@ -1,6 +1,6 @@
 "use client";
 
-import { analytics } from "@analytics-compliance/analytics-sdk";
+import { analytics } from "@aksorn-uat/analyticlog-node-sdk";
 import { useState } from "react";
 
 type LogItem = {
@@ -115,23 +115,25 @@ export default function Home() {
   }
 
   function handleLogin(): void {
-    analytics.setUser({
-      userId,
-      userType,
-      email,
-      roles: ["USER"],
-      schoolId: "school-demo-01",
-      schoolNameTh: "โรงเรียนเดโม",
-      provinceTh: "Bangkok",
-      provinceEn: "Bangkok",
-      districtTh: "คลองเตย",
-      districtEn: "Khlong Toei",
-      subDistrictTh: "คลองเตย",
-      subDistrictEn: "Khlong Toei",
-      postalCode: "10110",
+    analytics.setUser({ userId });
+    void analytics.login({
+      contents: {
+        method: "form-login-demo",
+        userType,
+        email,
+        roles: ["USER"],
+        schoolId: "school-demo-01",
+        schoolNameTh: "โรงเรียนเดโม",
+        provinceTh: "Bangkok",
+        provinceEn: "Bangkok",
+        districtTh: "คลองเตย",
+        districtEn: "Khlong Toei",
+        subDistrictTh: "คลองเตย",
+        subDistrictEn: "Khlong Toei",
+        postalCode: "10110",
+      },
     });
-    analytics.eventLogin({ content: { method: "form-login-demo" } });
-    analytics.eventSessionStart({ content: { source: "manual-login" } });
+    void analytics.sessionStart({ contents: { source: "manual-login" } });
     setIsLoggedIn(true);
     setAuthMode("authenticated");
     appendLog(`Login as ${userId}`);
@@ -149,29 +151,35 @@ export default function Home() {
     analytics.clearUser();
     setIsLoggedIn(false);
     setAuthMode("anonymous");
-    analytics.eventSessionStart({ content: { source: "anonymous-mode" } });
+    void analytics.sessionStart({ contents: { source: "anonymous-mode" } });
     appendLog("Switched to anonymous mode");
   }
 
   function fireAllEvents(): void {
-    analytics.pageView({ source: "manual-trigger-demo" });
-    analytics.eventSearched({ content: { keyword: "mathematics", resultCount: 8 } });
-    analytics.eventDownloaded({
-      content: { fileId: "pdf-001", fileType: "pdf", fileName: "sample.pdf" },
+    void analytics.pageView({ contents: { source: "manual-trigger-demo" } });
+    void analytics.eventCustom("searched", {
+      contents: { keyword: "mathematics", resultCount: 8 },
     });
-    analytics.eventClicked({ content: { target: "cta-start", location: "top-nav" } });
-    analytics.eventSubmitted({ content: { formName: "contact-form", status: "success" } });
-    analytics.eventLogin({ content: { method: "replay-test" } });
-    analytics.eventSessionStart({ content: { trigger: "replay-test" } });
-    analytics.eventCustom("event.custom_demo", {
-      content: { note: "custom event fired", timestamp: new Date().toISOString() },
+    void analytics.eventCustom("downloaded", {
+      contents: { fileId: "pdf-001", fileType: "pdf", fileName: "sample.pdf" },
+    });
+    void analytics.clicked({
+      contents: { target: "cta-start", location: "top-nav" },
+    });
+    void analytics.eventCustom("submitted", {
+      contents: { formName: "contact-form", status: "success" },
+    });
+    void analytics.login({ contents: { method: "replay-test" } });
+    void analytics.sessionStart({ contents: { trigger: "replay-test" } });
+    void analytics.eventCustom("custom_demo", {
+      contents: { note: "custom event fired", timestamp: new Date().toISOString() },
     });
     appendLog("Fired all SDK events");
   }
 
   function sendSampleContentsPayload(): void {
-    analytics.eventCustom("event.sample_contents_payload", {
-      content: sampleContents,
+    void analytics.eventCustom("sample_contents_payload", {
+      contents: sampleContents,
     });
     appendLog("Sent sample contents payload");
   }
@@ -179,7 +187,7 @@ export default function Home() {
   return (
     <main style={{ padding: 24, fontFamily: "Arial, sans-serif", maxWidth: 900, margin: "0 auto" }}>
       <h1>Analytics SDK Demo (Next.js + TypeScript)</h1>
-      <p>Demo app for login/logout and testing every analytics event.</p>
+      <p>Demo app for login/logout and testing analyticlog-node-sdk events.</p>
 
       <section style={{ border: "1px solid #ddd", padding: 16, borderRadius: 8, marginBottom: 16 }}>
         <h2>SDK Status</h2>
@@ -210,15 +218,61 @@ export default function Home() {
           pageView is auto-sent on route change from layout provider.
         </p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button onClick={() => analytics.eventSearched({ content: { keyword: "science" } })}>eventSearched</button>
-          <button onClick={() => analytics.eventDownloaded({ content: { fileId: "pdf-001" } })}>eventDownloaded</button>
-          <button onClick={() => analytics.eventClicked({ content: { target: "demo-btn" } })}>eventClicked</button>
-          <button onClick={() => analytics.eventSubmitted({ content: { formName: "register" } })}>eventSubmitted</button>
-          <button onClick={() => analytics.eventLogin({ content: { method: "manual-button" } })}>eventLogin</button>
-          <button onClick={() => analytics.eventSessionStart({ content: { trigger: "manual-button" } })}>
-            eventSessionStart
+          <button
+            onClick={() =>
+              void analytics.eventCustom("searched", {
+                contents: { keyword: "science" },
+              })
+            }
+          >
+            eventCustom(searched)
           </button>
-          <button onClick={() => analytics.eventCustom("event.custom_button", { content: { from: "button" } })}>
+          <button
+            onClick={() =>
+              void analytics.eventCustom("downloaded", {
+                contents: { fileId: "pdf-001" },
+              })
+            }
+          >
+            eventCustom(downloaded)
+          </button>
+          <button
+            onClick={() =>
+              void analytics.clicked({ contents: { target: "demo-btn" } })
+            }
+          >
+            clicked
+          </button>
+          <button
+            onClick={() =>
+              void analytics.eventCustom("submitted", {
+                contents: { formName: "register" },
+              })
+            }
+          >
+            eventCustom(submitted)
+          </button>
+          <button
+            onClick={() =>
+              void analytics.login({ contents: { method: "manual-button" } })
+            }
+          >
+            login
+          </button>
+          <button
+            onClick={() =>
+              void analytics.sessionStart({ contents: { trigger: "manual-button" } })
+            }
+          >
+            sessionStart
+          </button>
+          <button
+            onClick={() =>
+              void analytics.eventCustom("custom_button", {
+                contents: { from: "button" },
+              })
+            }
+          >
             eventCustom
           </button>
           <button onClick={sendSampleContentsPayload}>Send Sample Contents Payload</button>
