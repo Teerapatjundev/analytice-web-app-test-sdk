@@ -6,8 +6,8 @@ import { useEffect } from "react";
 
 const INGESTION_URL =
   "https://uat-analyticlogapi.aksorn.com/analytics/api/v1/ingest";
-const CLIENT_ID = "a1b2c3d4-5678-90ab-cdef-1234567890ab";
-const API_KEY = "e3a15bc1-bd62-42c5-ae9a-d3a9efb6df7f";
+const CLIENT_ID = "eb8dc547-9b11-45da-9208-8912512c198a";
+const API_KEY = "0FefzFIGyti38U0RE3hKWs3rwV5kh7PPsSrueYQk";
 
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -32,8 +32,7 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
       contents: {
         source: "route-change",
         path: pathname,
-        query:
-          typeof window !== "undefined" ? window.location.search : "",
+        query: typeof window !== "undefined" ? window.location.search : "",
       },
     });
   }, [pathname]);
