@@ -1,6 +1,6 @@
 "use client";
 
-import { analytics } from "@aksorn-uat/analyticlog-node-sdk";
+import { analytics } from "@aksorn-tbd/analyticlog-node";
 import { useState } from "react";
 
 type LogItem = {
